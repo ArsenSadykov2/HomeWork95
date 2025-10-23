@@ -35,6 +35,7 @@ const UserSchema = new Schema<UserFields, UserModel, UserMethods>({
         type: String,
         required: true,
         unique: true,
+        trim: true,
     },
     password: {
         type: String,
@@ -54,6 +55,7 @@ const UserSchema = new Schema<UserFields, UserModel, UserMethods>({
     displayName: {
         type: String,
         required: true,
+        trim: true,
     },
     googleId: String,
     avatar: String,

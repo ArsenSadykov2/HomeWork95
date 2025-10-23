@@ -9,15 +9,6 @@ import { imagesUpload } from "../multer";
 const usersRouter = express.Router();
 const googleClient = new OAuth2Client(config.google.clientId);
 
-usersRouter.get("/", async (req, res, next) => {
-    try {
-        const users = await User.find();
-        res.send(users);
-    } catch (e) {
-        next (e);
-    }
-})
-
 usersRouter.post("/",imagesUpload.single('avatar'), async (req, res, next) => {
     const userData: Omit<UserFields, 'token' | 'role'> = {
         username: req.body.username,
