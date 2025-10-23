@@ -18,6 +18,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PublishIcon from '@mui/icons-material/Publish';
 import UnpublishedIcon from '@mui/icons-material/Unpublished';
 import {Link} from 'react-router-dom';
+import { toast } from 'react-toastify';
 import NotFoundPic from '../../../../../../HomeWork95/frontend/src/assets/images/NotFoundPic.png';
 import {apiUrl} from "../../../../globalConstants.ts";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks.ts";
@@ -73,10 +74,18 @@ const CocktailItem: React.FC<Props> = ({id,name,recipe,image,ingredients,isPubli
 
     const handleTogglePublished = async () => {
         if (!id) return;
+
+        if (!canChangePublish) {
+            toast.error('You do not have permission to publish cocktails. Please contact administrator.');
+            return;
+        }
+
         try {
             await dispatch(toggleCocktailPublished(id)).unwrap();
+            toast.success(`Cocktail successfully ${isPublished ? 'unpublished' : 'published'}`);
         } catch (error) {
             console.error('Patch error:', error);
+            toast.error('Error changing publication status');
         }
     };
 
@@ -100,7 +109,7 @@ const CocktailItem: React.FC<Props> = ({id,name,recipe,image,ingredients,isPubli
             >
                 {showUnpublished && !isPublished && (
                     <Chip
-                        label="Неопубликовано"
+                        label="Unpublished"
                         color="warning"
                         size="small"
                         sx={{
@@ -152,7 +161,7 @@ const CocktailItem: React.FC<Props> = ({id,name,recipe,image,ingredients,isPubli
                 <CardContent sx={{flexGrow: 1, py: 1}}>
                     <Box sx={{mb: 2}}>
                         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                            Ингредиенты:
+                            Ingredients:
                         </Typography>
                         <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
                             {ingredients.slice(0, 3).map((ingredient, index) => (
@@ -166,7 +175,7 @@ const CocktailItem: React.FC<Props> = ({id,name,recipe,image,ingredients,isPubli
                             ))}
                             {ingredients.length > 3 && (
                                 <Chip
-                                    label={`+${ingredients.length - 3} еще`}
+                                    label={`+${ingredients.length - 3} more`}
                                     size="small"
                                     color="primary"
                                     sx={{fontSize: '0.7rem'}}
@@ -202,7 +211,7 @@ const CocktailItem: React.FC<Props> = ({id,name,recipe,image,ingredients,isPubli
 
                     {author && (
                         <Typography variant="caption" color="text.secondary" display="block" sx={{mt: 1}}>
-                            Автор: {author.displayName || author.username}
+                            Author: {author.displayName || author.username}
                         </Typography>
                     )}
                 </CardContent>

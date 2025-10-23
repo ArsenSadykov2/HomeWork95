@@ -82,21 +82,29 @@ cocktailsRouter.delete("/:id",auth, permit('admin'), async (req, res, next) => {
     }
 });
 
-cocktailsRouter.patch("/:id/togglePublished", auth, permit('admin'), async (req, res, next) => {
+cocktailsRouter.patch("/:id/togglePublished", auth, async (req, res, next) => {
     try{
         if(!req.params.id){
             res.status(404).send("Not Found");
             return;
         }
         const {id} = req.params;
+        const user = (req as RequestWithUser).user;
+
         const cocktail = await Cocktail.findById(id);
         if(!cocktail) {
             res.status(404).send("Not Found");
             return;
         }
 
-        cocktail.isPublished = !cocktail.isPublished;
+        const isAdmin = user.role === 'admin';
+        const isAuthor = cocktail.author.toString() === user._id.toString();
 
+        if (!isAdmin && !isAuthor) {
+            return res.status(403).send({error: "You do not have permission"});
+        }
+
+        cocktail.isPublished = !cocktail.isPublished;
         await cocktail.save();
 
         res.send({

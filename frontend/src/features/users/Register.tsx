@@ -38,6 +38,7 @@ const Register = () => {
         try {
             const formData = new FormData();
             formData.append('username', state.username);
+            formData.append('email', state.email);
             formData.append('password', state.password);
             formData.append('displayName', state.displayName);
 
