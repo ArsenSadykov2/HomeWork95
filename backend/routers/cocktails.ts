@@ -19,25 +19,21 @@ cocktailsRouter.get("/", async (req, res, next) => {
     }
 });
 
-cocktailsRouter.post("/",auth,imagesUpload.single('image'), async (req, res, next) => {
+cocktailsRouter.post("/", auth, imagesUpload.single('image'), async (req, res, next) => {
     try {
         const authorId = (req as RequestWithUser).user._id;
-
-        if (!authorId) {
-            return res.status(401).send({ message: 'User not found' });
-        }
-        const name = req.body.name;
-        const ingredients = req.body.ingredients;
-        const author = authorId;
-        const recipe = req.body.recipe;
+        const { name, recipe, ingredients } = req.body;
 
         const newCocktail = new Cocktail({
-            name, ingredients, author, recipe,
+            name,
+            recipe,
+            author: authorId,
+            ingredients: JSON.parse(ingredients),
             image: req.file ? 'images/' + req.file.filename : null,
-        })
+        });
+
         await newCocktail.save();
         res.status(200).send(newCocktail);
-
     } catch (error) {
         if(error instanceof Error.ValidationError || error instanceof Error.CastError) {
             res.status(400).send(error);
@@ -48,24 +44,24 @@ cocktailsRouter.post("/",auth,imagesUpload.single('image'), async (req, res, nex
 });
 
 cocktailsRouter.get("/:id", async (req, res, next) => {
-    try{
-        if(!req.params.id){
+    try {
+        if (!req.params.id) {
             res.status(404).send("Not Found");
             return;
         }
-        const {id} = req.params;
+        const { id } = req.params;
 
-        const cocktail = await Cocktail.find({author: id})
-            .populate("author", "username _id")
-        if(!cocktail){
+        const cocktail = await Cocktail.findById(id)
+            .populate("author", "username displayName _id");
+
+        if (!cocktail) {
             res.status(404).send("Not Found");
             return;
         }
         res.status(200).send(cocktail);
-    } catch (e){
+    } catch (e) {
         next(e);
     }
-
 });
 
 cocktailsRouter.delete("/:id",auth, permit('admin'), async (req, res, next) => {

@@ -34,16 +34,16 @@ export interface Cocktail {
     }];
 }
 
-export interface CocktailMutation {
-    author: User;
+interface CocktailMutation {
+    author: string;
     name: string;
     recipe: string;
-    image?: string | null;
+    image: File | null;
     isPublished: boolean;
-    ingredients: [{
+    ingredients: {
         name: string;
-        amount: string
-    }];
+        amount: string;
+    }[];
 }
 
 export interface ValidationError {

@@ -23,13 +23,17 @@ export const createCocktail = createAsyncThunk<void, CocktailMutation>(
     'cocktails/createCocktail',
     async (cocktailToAdd) => {
         const formData = new FormData();
-        const keys = Object.keys(cocktailToAdd) as (keyof CocktailMutation)[];
-        keys.forEach(key => {
-            const value = cocktailToAdd[key] as (keyof CocktailMutation);
-            if(value !== null) {
-                formData.append(key, value);
-            }
-        })
+
+        formData.append('name', cocktailToAdd.name);
+        formData.append('recipe', cocktailToAdd.recipe);
+        formData.append('author', cocktailToAdd.author);
+        formData.append('isPublished', cocktailToAdd.isPublished.toString());
+        formData.append('ingredients', JSON.stringify(cocktailToAdd.ingredients));
+
+        if (cocktailToAdd.image) {
+            formData.append('image', cocktailToAdd.image);
+        }
+
         await axiosApi.post('/cocktails', formData);
     }
 );
@@ -41,10 +45,10 @@ export const deleteCocktail = createAsyncThunk<void, string>(
     }
 );
 
-export const toggleCocktailPublished = createAsyncThunk<Cocktail,string>(
+export const toggleCocktailPublished = createAsyncThunk<Cocktail, string>(
     'cocktails/togglePublished',
     async (cocktailId: string) => {
         const response = await axiosApi.patch(`/cocktails/${cocktailId}/togglePublished`);
-        return response.data.album;
+        return response.data.cocktail;
     }
 );
